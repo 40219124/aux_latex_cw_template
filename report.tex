@@ -1,9 +1,9 @@
 %FILL THESE IN
 \def\mytitle{Coursework Report}
-\def\mykeywords{Fill, These, In, So, google, can, find, your, report}
-\def\myauthor{Cool Student}
-\def\contact{4008000@napier.ac.uk}
-\def\mymodule{Module Title (SET00000)}
+\def\mykeywords{Graphics, Hierarchy, Phong, Shadows, OpenGL}
+\def\myauthor{Timothy S. Sanderson}
+\def\contact{40219124@live.napier.ac.uk}
+\def\mymodule{Computer Graphics (SET08116)}
 %YOU DON'T NEED TO TOUCH ANYTHING BELOW
 \documentclass[10pt, a4paper]{article}
 \usepackage[a4paper,outer=1.5cm,inner=1.5cm,top=1.75cm,bottom=1.5cm]{geometry}
@@ -70,77 +70,44 @@
 \begin{document}
 	\maketitle
 	\begin{abstract}
-		\lipsum[2]
+		This is a project which demonstrates the implementation of basic lighting, shadowing, and texturing effects, in a 3D graphical scene.
 	\end{abstract}
     
 	\textbf{Keywords -- }{\mykeywords}
     %START FROM HERE
 	\section{Introduction}
-    \paragraph{Referencing}
-    You should cite References like this: \cite{Keshav}. The references are saved in an external .bib file, and will automatically be added ot the bibliography at the end once cited.
+	This project demonstrates basic, graphical concepts through the use of a 3D environment, rendered using OpenGL.  In this scene the main focus is a structure made of numerous moving spheres.  The spheres represent a hierarchical relation, as well as providing a good demonstration of the reactivity of the implemented lighting effects.  Due to their rapid movement it is easy to see how efficiently the highlights are tracking across their surfaces, and how the shadows are being cast behind them.
     
-    \figuremacro{h}{placeholder}{ImageTitle}{ - Some Descriptive Text}{1.0}
+    \figuremacro{h}{basic_scene}{Scene overview}{ - A general look at the contents of the scene}{1.0}
 	
-	\section{Formatting}
-	Some common formatting you may need uses these commands for \textbf{Bold Text}, \textit{Italics}, and \underline{underlined}.
-	\subsection{LineBreaks}
-	Here is a line
-    
-    Here is a line followed by a double line break.
-	This line is only one line break down from the above, Notice that latex can ignore this
-    
-    We can force a break \\ with the break operator.
-    
-	\subsection{Maths}
-    Embedding Maths is Latex's bread and butter    
-    
-    {\centering \Large \(
-        J = \begin{bmatrix}
-            \frac{\delta e}{\delta \theta _0}
-            \frac{\delta e}{\delta \theta _1}
-            \frac{\delta e}{\delta \theta _2}
-        \end{bmatrix}
-        = e_{current} - e_{target} 
-    \)\par}
+	\section{Implementation}
+	The following are the concepts implemented in the scene to give its current appearance.
+	\subsection{Textures}
+	All objects in this scene are textured.  By applying a texture to an object it can be given aesthetic detail that makes it more pleasing to look at, and easier to discern from other objects.
 	
-	\subsection{Code Listing}
-    You can load segments of code from a file, or embed them directly.
-    
-\begin{lstlisting}[caption = Hello World! in c++]
-#include <iostream>
-
-int main() {
-    std::cout << "Hello World!" << std::endl;
-    std::cin.get();
-    return 0;
-}
-\end{lstlisting}
-
-\lstinputlisting[caption = Hello World! in python script]{./sourceCode/hello.py}
-    
-\subsection{PseudoCode}
-
-\begin{algorithm}[h]
-\For{$i = 0$ \KwTo $100$}{
- print\_number = true\;
-\If{i is divisible by 3}{
- print "Fizz"\;
- print\_number = false\;
-}
-\If{i is divisible by 5}{
- print "Buzz"\;
- print\_number = false\;
-}
-\If{print\_number}{
-    print i\;
-}
-print a newline\;
-}
-\caption{FizzBuzz}
-\end{algorithm}
+	A more complicated use of textures is the normal map.  A normal map is used by a shader to manipulate how light shines on an otherwise flat surface.  In Figure~\ref{fig:basic_scene} the back wall is a completely flat plane, but thanks to normal mapping it looks like a roughly textured wall.
+	\subsection{Lighting}
+	Shaders within this scene all implement Phong illumination.  This lighting model implements the use of ambient, diffuse, and specular lighting.
+	\figuremacro{h}{Phong_demo}{Lighting}{ - Lighting effects demonstrated on an orb}{1.0}
 	
-\section{Conclusion}	
-\bibliographystyle{ieeetr}
-\bibliography{references}
+	On the right of Figure~\ref{fig:Phong_demo} can be seen the ambient light.  It's set to be very low, but some details can still be seen.
+	
+	The areas where details can easily be seen are the ones demonstrating diffuse lighting.
+	
+	Bright yellow highlights on the left are an example of a specular reflection from the yellow light source.
+	\subsection{Shadows}
+	Shadows are the most complicated aspect of this scene.  To cast a shadow, you first have to find how the light views the scene.  Once this information has been found, through the use of matrix calculation, you can tell a shader if the light can "see" the vertex that is being rendered.  If it is found that the light doesn't have sight of the object, then the brightness of the vertex is reduced.  This light reduction creates the effect of shadows.
+	
+	\section{Future Work}
+	A major drawback of this scene is the lack of a skybox.  The implementation of a skybox instantly gives the scene a vastly increased aesthetic appeal.  In both Figure~\ref{fig:basic_scene} and~\ref{fig:Phong_demo} there can be seen a bright blue colour in the background.  This is a default appearance and not one that looks nice.  Hence, a skybox being the next thing that will be added.
+	
+	The scene could also do with a more cohesive setting/theme, whereas it currently is visually like a tech-demo.  Although functional, there is much that could be improved to give the scene more personality while still demonstrating the same concepts.  Not only should the scene be more interesting, but it should also be larger.  In the current iteration the lights all fight to be seen over the others, and although this does demonstrate the ability to use multiple lights, it makes the scene feel cramped.
+	
+	
+	\section{Conclusion}	
+	Overall, this scene has met the requirements made for it.  Although it might lack the personality that would make it more interesting to look at, it is still an effective exercise in graphical effect processing.  
+	
+%	\bibliographystyle{ieeetr}
+%	\bibliography{references}
 		
 \end{document}
