@@ -78,7 +78,7 @@
 	\section{Introduction}
 	This project demonstrates basic, graphical concepts through the use of a 3D environment, rendered using OpenGL.  In this scene the main focus is a structure made of numerous moving spheres.  The spheres represent a hierarchical relation, as well as providing a good demonstration of the reactivity of the implemented lighting effects.  Due to their rapid movement it is easy to see how efficiently the highlights are tracking across their surfaces, and how the shadows are being cast behind them.
     
-    \figuremacro{h}{basic_scene}{Scene overview}{ - A general look at the contents of the scene}{1.0}
+    \figuremacro{h}{basic_scene}{Old scene overview}{ - A good showcase for basic techniques in the scene}{1.0}
 	
 	\section{Implementation}
 	The following are the concepts implemented in the scene to give its current appearance.
@@ -86,17 +86,23 @@
 	All objects in this scene are textured.  By applying a texture to an object it can be given aesthetic detail that makes it more pleasing to look at, and easier to discern from other objects.
 	
 	A more complicated use of textures is the normal map.  A normal map is used by a shader to manipulate how light shines on an otherwise flat surface.  In Figure~\ref{fig:basic_scene} the back wall is a completely flat plane, but thanks to normal mapping it looks like a roughly textured wall.
+	
+	The final version of the project uses a floor created with a height map.  A height map is a texture used to create geometry based on colour values.  The closer to white the texture is, the higher the y-position of the corresponding vertex.  Although much more dramatic terrain can be generated from a height map, simply creating a gentle hill is beneficial to this scene for two reasons.  The first reason, it elevates the centre of the scene, bringing focus onto the important elements of the environment.  Secondly and more simply, it prevents the ground from being a large flat plane, which is a visually unappealing thing to look at.
+	
+	Textures are an incredibly important thing when it comes to post-processing.  When a scene is rendered it outputs to a frame buffer.  By default a scene is rendered to the screen's frame buffer.  However, the output can be changed to a frame buffer object, and from here the rendered scene can be saved as a texture.  Once a render has become a texture, that texture can be used for post-processing
 	\subsection{Lighting}
-	Shaders within this scene all implement Phong illumination.  This lighting model implements the use of ambient, diffuse, and specular lighting.
+	Objects within this scene implement Phong illumination.  This lighting model implements the use of ambient, diffuse, and specular lighting.
 	\figuremacro{h}{Phong_demo}{Lighting}{ - Lighting effects demonstrated on an orb}{1.0}
 	
-	On the right of Figure~\ref{fig:Phong_demo} can be seen the ambient light.  It's set to be very low, but some details can still be seen.
+	On the right of Figure~\ref{fig:Phong_demo} can be seen the ambient light.  It's set to be very low, but some details can still be seen.  This lighting type is most simple of all.  Ambient light is applied uniformly, and without regard to light or view direction.
 	
-	The areas where details can easily be seen are the ones demonstrating diffuse lighting.
+	The areas where details can easily be seen are the ones demonstrating diffuse lighting.  This is the light which is directly hitting, and illuminating a vertex.  Diffuse lighting changes its position on an object based on the direction of the light source.  As such a vertex on a spinning object will not always be illuminated, and the maths needs to account for this.
 	
-	Bright yellow highlights on the left are an example of a specular reflection from the yellow light source.
+	Bright yellow highlights on the left are an example of a specular reflection from the yellow light source.  Specular highlights are special because their location changes based on viewing angle, the position of the vertex, and the location of the light.
+	
+	To test the relation of a vertex to light, the vertex's normal is used.  When combined with the direction to the light in a dot product this gives information about the angle between the two and, from there, the degree of lighting can be calculated.
 	\subsection{Shadows}
-	Shadows are the most complicated aspect of this scene.  To cast a shadow, you first have to find how the light views the scene.  Once this information has been found, through the use of matrix calculation, you can tell a shader if the light can "see" the vertex that is being rendered.  If it is found that the light doesn't have sight of the object, then the brightness of the vertex is reduced.  This light reduction creates the effect of shadows.
+	Shadows are the relatively complicated and mathematically intense technique.  To know if something is in shadow it needs to be known if there is an object between it and the light.  In order to find this out the scene first has to be viewed from the position of the light.  This data is saved to a texture which allows the red value to be used to determine how far away that vertex was from the camera.  Due to the nature of colours holding whole values to up to 255, this means there is a very limited capacity for detail.  In this scene the shadows are calculated from objects up to 300 arbitrary units away, so that shadows are far reaching, but do not lose too much precision.  Then, when rendering the scene to have shadows implemented, the vertex needs to be operated on with matrices from both the camera's view and the light's view, in order to see whether it lies within the cast of a shadow.
 	
 	\section{Future Work}
 	A major drawback of this scene is the lack of a skybox.  The implementation of a skybox instantly gives the scene a vastly increased aesthetic appeal.  In both Figure~\ref{fig:basic_scene} and~\ref{fig:Phong_demo} there can be seen a bright blue colour in the background.  This is a default appearance and not one that looks nice.  Hence, a skybox being the next thing that will be added.
