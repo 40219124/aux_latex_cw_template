@@ -1,6 +1,6 @@
 %FILL THESE IN
 \def\mytitle{Coursework Report}
-\def\mykeywords{Graphics, Hierarchy, Phong, Shadows, OpenGL}
+\def\mykeywords{Graphics, Hierarchy, Phong, Shadows, OpenGL, Mirror, Height Map, Post Processing}
 \def\myauthor{Timothy S. Sanderson}
 \def\contact{40219124@live.napier.ac.uk}
 \def\mymodule{Computer Graphics (SET08116)}
@@ -76,7 +76,7 @@
 	\textbf{Keywords -- }{\mykeywords}
     %START FROM HERE
 	\section{Introduction}
-	This project demonstrates basic, graphical concepts through the use of a 3D environment, rendered using OpenGL.  In this scene the main focus is a structure made of numerous moving spheres.  The spheres represent a hierarchical relation, as well as providing a good demonstration of the reactivity of the implemented lighting effects.  Due to their rapid movement it is easy to see how efficiently the highlights are tracking across their surfaces, and how the shadows are being cast behind them.
+	This project demonstrates graphical concepts through the use of a 3D environment, rendered using OpenGL.  In this scene the main focus is a structure made of numerous moving spheres, that is reflected in a nearby mirror.  The spheres represent a hierarchical relation, as well as providing a good demonstration of the reactivity of the implemented graphical effects.  Due to their rapid movement it is easy to see how efficiently the highlights are tracking across their surfaces, and how the shadows are being cast behind them.
     
     \figuremacro{h}{basic_scene}{Old scene overview}{ - A good showcase for basic techniques in the scene}{1.0}
 	
@@ -113,14 +113,41 @@
 	Visual effects applied after the rendering of the main scene are known as post-processing.  To apply these visual effects the scene is first rendered as a texture, and then this texture is manipulated to give a certain output. Post-processing is a powerful tool allowing pixels to be read from a screen space they didn't originally belong to, among other things.  Figure~\ref{fig:wiggle} shows off this concept clearly as the pixels in a vertical line are instead actually displaying pixels to either the left, or right, of themselves based on a sin wave.
 	\figuremacro{h}{wiggle}{House of mirrors}{ - A post processing effect to turn the regular screen output into multiple waves}{1.0}
 	
-	A more common visual effect is the use of blurring.  Variations of blurring can used for things such as depth of field.  However in this scene it is simply a blur effect, and consequently just makes things look out of focus (Figure~\ref{fig:blur}).
+	A more common visual effect is the use of blurring.  Variations of blurring can used for things such as depth of field.  However, this scene implements a very simple blur, which has a result somewhere between anti-aliasing, and looking out of focus (Figure~\ref{fig:blur}).
 	\figuremacro{h}{blur}{Out of focus}{ - This effect blurs the scene}{1.0}
 	
+	\subsection{Mirroring}
+	A fusion between post-processing, and scene rendering is the recipe for the highlight of this scene, mirroring.  In this scene the mirror is simply a plane with a texture on it.  Using texture coordinates based on screen space instead of the object's position created the appearance of it reflecting a three dimensional space.  Getting the texture is what requires most of the work, and processing power.
+	\figuremacro{h}{mirror}{Reflection}{ - A mirror reflecting the scene}{1.0}
+	
+	To get the texture for the mirror required doing a render of the scene before the scene was properly rendered.  The difference was that this first scene was rendered from a camera, that existed as a counterpart to the active camera.  This "counterpart" existed behind the mirror, mirroring the movement and view of the first camera.  Of course this requires two renderings of the scene instead of one, which greatly increases GPU load.
+	
+	\section{Optimisation}
+	These scene has a both good and bad points when it comes to optimisation.  There are many areas where an effort was made to streamline processes, however there are many known taxes on processing power as well.
+	
+	\subsection{Positive optimisation}
+	In openGL the "bind" function is a particularly taxing one.  As such it is best to avoid it where possible.  To accomplish this textures are only bound to the renderer if they are different from the previously rendered mesh.  With the structure of orbs featured this is particularly important as the repetitions would be high.
+	
+	Further optimisations were made with relation to the cameras view and projection matrices.  These were multiplied together once at the start of the rendering process, instead of every time an object was rendered.  Although individually insignificant it is important to avoid even minor processes when the amount they are done is high.
+	
+	When calling functions in c++ the typical method is to use pass by value.  This process creates a copy of the data to hand to the function, which when processing large maps, can be a problem for efficiency.  Consequently many of the functions in this program utilise pointers or references to speed up function calls.
+	
+	When behind a mirror it's reflection can not be seen.  With this in mind the mirrors reflection is only rendered should the camera be positioned in front of it.  Due to issues with field of view, the mirror does not stop rendering when you simply look away, but the positional optimisation alone sees significant performance boosts when behind the mirror.
+	
+	\subsection{Negative optimisation}
+	The polygon count of a model is a good way to tell the effect it will have on a GPU.  Although the specifics are unknown, the model that was imported for the orbs has a very high poly count and does cause problems on weaker GPU's.  Adjusting level of detail would help to improve the performance impacts of the orbs.
+	
+	Optimising camera matrix multiplication was discussed in the positive section, but it belongs here as well.  The matrices are multiplied every render cycle, but it would be even more optimal to calculate them only when the camera has moved.
+	
+	A better mirror than the one implemented here would be one which didn't render the areas of the scene it didn't need to show.  As it stands the mirror camera renders an entire scene and then only a small portion of this is actually used.
+	
 	\section{Future Work}
-	A major drawback of this scene is the lack of a skybox.  The implementation of a skybox instantly gives the scene a vastly increased aesthetic appeal.  In both Figure~\ref{fig:basic_scene} and~\ref{fig:Phong_demo} there can be seen a bright blue colour in the background.  This is a default appearance and not one that looks nice.  Hence, a skybox being the next thing that will be added.
 	
-	The scene could also do with a more cohesive setting/theme, whereas it currently is visually like a tech-demo.  Although functional, there is much that could be improved to give the scene more personality while still demonstrating the same concepts.  Not only should the scene be more interesting, but it should also be larger.  In the current iteration the lights all fight to be seen over the others, and although this does demonstrate the ability to use multiple lights, it makes the scene feel cramped.
+	The elements discussed in the negative optimisation section are of course things that need to be worked on.  They range from simple for ignoring some matrix multiplication, to very complicated maths for the mirrors.  Many other areas of code could benefit from being cleaner too, as many segments of the render function could be outsourced into methods.
 	
+	The scene could also do with a more cohesive setting/theme, whereas it currently is visually like a tech-demo.  Although functional, there is much that could be improved to give the scene more personality while still demonstrating the same concepts.
+	
+	Something that would greatly improve the scene from a functionality stand point is a GUI to tell a person how to control it.  There are a great many buttons that can be pushed in this scene and a visual reminder would be a big help.
 	
 	\section{Conclusion}	
 	Overall, this scene has met the requirements made for it.  Although it might lack the personality that would make it more interesting to look at, it is still an effective exercise in graphical effect processing.  
